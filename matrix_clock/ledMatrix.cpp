@@ -1,6 +1,21 @@
 #include "ledMatrix.h"
 
-void updateMatrix(MaxMatrix matrix, uint32_t &currentColumn, int32_t &currentRow)
+//LED Matix
+const byte DIN = 7; // DIN pin of MAX7219 module
+const byte CLK = 6; // CLK pin of MAX7219 module
+const byte CS = 5;  // CS pin of MAX7219 module
+const byte maxInUse = 1;
+
+MaxMatrix matrix(DIN, CS, CLK, maxInUse);
+
+void setupMatrix()
+{
+    //LED Matix init
+    matrix.init();
+    matrix.setIntensity(0); // initial led matrix intensity, 0-15
+}
+
+void updateMatrix(uint32_t &currentColumn, int32_t &currentRow)
 {
     currentRow -= 1;
     if (currentRow < 0)
@@ -9,7 +24,7 @@ void updateMatrix(MaxMatrix matrix, uint32_t &currentColumn, int32_t &currentRow
         currentColumn += 1;
         if (currentColumn > 7)
         {
-            alarm(matrix);
+            alarm();
         }
     }
 
@@ -18,24 +33,24 @@ void updateMatrix(MaxMatrix matrix, uint32_t &currentColumn, int32_t &currentRow
     Serial.print(" x ");
     Serial.println(currentColumn);
 
-    //matrix.setDot(currentColumn, currentRow, false);
+    matrix.setDot(currentColumn, currentRow, false);
 }
 
-void alarm(MaxMatrix matrix)
+void alarm()
 {
     Serial.println("Alarm");
 
     while (true)
     {
-        fillMatrix(matrix);
+        fillMatrix();
         delay(250);
 
-        clearMatrix(matrix);
+        clearMatrix();
         delay(250);
     }
 }
 
-void flashCursor(MaxMatrix matrix, uint32_t currentColumn, int32_t currentRow)
+void flashCursor(uint32_t currentColumn, int32_t currentRow)
 {
     Serial.print("FLASH: ");
     Serial.print(currentRow);
@@ -43,21 +58,17 @@ void flashCursor(MaxMatrix matrix, uint32_t currentColumn, int32_t currentRow)
     Serial.println(currentColumn);
 
     matrix.setDot(currentColumn, currentRow, true);
-    delay(100);
+    delay(250);
     matrix.setDot(currentColumn, currentRow, false);
-    delay(100);
-    matrix.setDot(currentColumn, currentRow, true);
-    delay(100);
-    matrix.setDot(currentColumn, currentRow, false);
-    delay(100);
+    delay(250);
 }
 
-void clearMatrix(MaxMatrix matrix)
+void clearMatrix()
 {
     matrix.clear();
 }
 
-void fillMatrix(MaxMatrix matrix)
+void fillMatrix()
 {
     for (int i = 0; i < 8; i++)
     {

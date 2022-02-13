@@ -4,10 +4,11 @@
 #include <MaxMatrix.h>
 #include "Arduino.h"
 
-void updateMatrix(MaxMatrix m, uint32_t &currentColumn, int32_t &currentRow);
-void alarm(MaxMatrix m);
-void flashCursor(MaxMatrix m, uint32_t currentColumn, int32_t currentRow);
-void clearMatrix(MaxMatrix m);
-void fillMatrix(MaxMatrix m);
+void setupMatrix();
+void updateMatrix( uint32_t &currentColumn, int32_t &currentRow);
+void alarm();
+void flashCursor( uint32_t currentColumn, int32_t currentRow);
+void clearMatrix();
+void fillMatrix();
 
 #endif
