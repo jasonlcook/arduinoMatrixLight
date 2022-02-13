@@ -4,8 +4,9 @@
 #include <MaxMatrix.h>
 
 //todo:
-//  -   invert led matrix to count down instead of up
-//  -   set the current digit to blink every seccond
+//  -   add alarm buzzer
+//  -   add update via bluetooth
+//  -   set deletions from top left to bottom right
 
 //Time
 RTClib myRTC;
@@ -28,6 +29,7 @@ MaxMatrix m(DIN, CS, CLK, maxInUse);
 uint32_t lightsInMatrix = 64;
 uint32_t currentColumn = 0;
 uint32_t currentRow = 0;
+bool cursorState = true;
 
 void setup()
 {
@@ -54,14 +56,14 @@ void loop()
 
     DateTime now = myRTC.now();
     currentTime = now.unixtime();
-    
+
     //tick seconds
     if (currentTime != indexTime)
     {
         secondsSinceLastUpdate++;
         indexTime = currentTime;
     }
-    
+
     Serial.print(currentTime);
     Serial.print(" : ");
     Serial.print(indexTime);
@@ -74,7 +76,7 @@ void loop()
         secondsSinceLastUpdate = 0;
     }
 
-    delay(500);
+    flashCursor();
 }
 
 void calculateDuration(String input)
@@ -82,20 +84,20 @@ void calculateDuration(String input)
     uint32_t parsedInput = input.toInt();
 
     secondDuration = parsedInput * 60;
-    
+
     Serial.print(parsedInput);
     Serial.print(" * 60 ");
     Serial.print(" = ");
-    Serial.println(secondDuration);    
-    
+    Serial.println(secondDuration);
+
     secondsTick = calculateTick(secondDuration);
 
     if (secondsTick < 1)
     {
         secondsTick = 1;
-        Serial.println("TICK UPDATED TO 1");  
+        Serial.println("TICK UPDATED TO 1");
     }
-    
+
     reset();
 }
 
@@ -113,14 +115,17 @@ void reset()
 
     //set LED matrix
     m.clear();
-    m.setDot(0, 0, true);
+    for (int i = 0; i < 8; i++)
+    {
+        m.setColumn(i, B11111111);
+    }
 }
 
 uint32_t calculateTick(int duration)
 {
     double tick = (double)duration / (double)lightsInMatrix;
     uint32_t flooredTick = round(tick);
-    
+
     Serial.print(duration);
     Serial.print(" / ");
     Serial.print(lightsInMatrix);
@@ -148,5 +153,13 @@ void updateMatrix()
         }
     }
 
+    m.setDot(currentColumn, currentRow, false);
+}
+
+void flashCursor()
+{
     m.setDot(currentColumn, currentRow, true);
+    delay(250);
+    m.setDot(currentColumn, currentRow, false);
+    delay(250);
 }
