@@ -13,8 +13,6 @@
 //  -   set one minute mode to only use 60 LEDs
 //  -   replace delays with clock reads
 
-uint32_t lightsInMatrix = 64;
-
 //Buttons
 const byte PIN_LED = 13;
 
@@ -23,12 +21,6 @@ volatile byte settingTimer = false;
 const byte PIN_SET_INTERRUPT = 2;
 const byte PIN_SET_UP = 9;
 const byte PIN_SET_DOWN = 10;
-
-uint32_t secondsTick;
-uint32_t secondsSinceLastUpdate = 0;
-uint32_t indexTime;
-uint32_t currentColumn = 0;
-int32_t currentRow = 7;
 
 void setup()
 {
@@ -44,14 +36,8 @@ void setup()
 
     attachInterrupt(digitalPinToInterrupt(PIN_SET_INTERRUPT), setTimerInterrupt, RISING);
 
-    //Tick seconds
-    RTClib myRTC;
-    DateTime now = myRTC.now();
-    indexTime = now.unixtime();
-
     //Initialise
-    fillMatrix();
-    secondsTick = calculateDuration(lightsInMatrix, "1");
+    setupCountDown("1");
 }
 
 void setTimerInterrupt()
@@ -72,21 +58,8 @@ void loop()
         while (Serial.available())
         {
             String minutesDuration = Serial.readString();
-            secondsTick = calculateDuration(lightsInMatrix, minutesDuration);
-
-            fillMatrix();
-            currentColumn = 0;
-            currentRow = 7;
         }
 
-        bool update = countDown(indexTime, secondsSinceLastUpdate, secondsTick, currentColumn, currentRow);
-        if (update)
-        {
-            updateMatrix(currentColumn, currentRow);
-        }
-        else
-        {
-            flashCursor(currentColumn, currentRow);
-        }
+        countDown();
     }
 }

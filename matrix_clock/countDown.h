@@ -2,10 +2,12 @@
 #define COUNT_DOWN_FUNCTIONS_H
 
 #include <DS3231.h>
+#include "ledMatrix.h"
 #include "Arduino.h"
 
-bool countDown(uint32_t &indexTime, uint32_t &secondsSinceLastUpdate, uint32_t &secondsTick, uint32_t &currentColumn, int32_t &currentRow);
-uint32_t calculateDuration(uint32_t lightsInMatrix, String input);
-uint32_t calculateTick(uint32_t lightsInMatrix, int duration);
+void setupCountDown(String minutesDuration);
+void countDown();
+uint32_t calculateDuration(String input);
+uint32_t calculateTick(int duration);
 
 #endif

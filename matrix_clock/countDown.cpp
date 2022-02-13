@@ -1,6 +1,28 @@
 #include "countDown.h"
 
-bool countDown(uint32_t &indexTime, uint32_t &secondsSinceLastUpdate, uint32_t &secondsTick, uint32_t &currentColumn, int32_t &currentRow)
+uint32_t secondsTick;
+uint32_t secondsSinceLastUpdate = 0;
+uint32_t indexTime;
+
+uint32_t lightsInMatrix = 64;
+uint32_t currentColumn = 0;
+int32_t currentRow = 7;
+
+void setupCountDown(String minutesDuration)
+{
+    //Tick seconds
+    RTClib myRTC;
+    DateTime now = myRTC.now();
+    indexTime = now.unixtime();
+
+    secondsTick = calculateDuration(minutesDuration);
+
+    fillMatrix();
+    currentColumn = 0;
+    currentRow = 7;
+}
+
+void countDown()
 {
     RTClib myRTC;
     DateTime now = myRTC.now();
@@ -21,13 +43,13 @@ bool countDown(uint32_t &indexTime, uint32_t &secondsSinceLastUpdate, uint32_t &
     if (secondsSinceLastUpdate >= secondsTick)
     {
         secondsSinceLastUpdate = 0;
-        return true;
+        updateMatrix(currentColumn, currentRow);
     }
 
-    return false;
+    flashCursor(currentColumn, currentRow);
 }
 
-uint32_t calculateDuration(uint32_t lightsInMatrix, String input)
+uint32_t calculateDuration(String input)
 {
     uint32_t parsedInput = input.toInt();
     uint32_t secondDuration = parsedInput * 60;
@@ -37,10 +59,10 @@ uint32_t calculateDuration(uint32_t lightsInMatrix, String input)
     Serial.print(" = ");
     Serial.println(secondDuration);
 
-    return calculateTick(lightsInMatrix, secondDuration);
+    return calculateTick(secondDuration);
 }
 
-uint32_t calculateTick(uint32_t lightsInMatrix, int duration)
+uint32_t calculateTick(int duration)
 {
     double tick = (double)duration / (double)lightsInMatrix;
     uint32_t flooredTick = round(tick);
