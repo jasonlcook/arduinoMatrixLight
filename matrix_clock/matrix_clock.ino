@@ -17,13 +17,8 @@ const byte PIN_LED = 13;
 
 //Time
 RTClib myRTC;
-uint32_t indexTime;
-uint32_t currentTime;
-uint32_t secondsSinceLastUpdate;
 
-String minutesDuration;
 uint32_t secondDuration;
-uint32_t secondsTick;
 
 //LED Matix
 const byte DIN = 7; // DIN pin of MAX7219 module
@@ -46,6 +41,9 @@ const byte PIN_SET_DOWN = 10;
 
 volatile byte settingTimer = false;
 
+uint32_t secondsTick;
+uint32_t secondsSinceLastUpdate = 0;
+
 volatile byte countdown = true;
 volatile byte timeset = false;
 
@@ -62,14 +60,14 @@ void setup()
     m.init();
     m.setIntensity(0); // initial led matrix intensity, 0-15
 
-    //buttons
+    //Buttons
     pinMode(PIN_LED, OUTPUT);
     pinMode(PIN_SET_INTERRUPT, INPUT_PULLUP);
 
     attachInterrupt(digitalPinToInterrupt(PIN_SET_INTERRUPT), setTimerInterrupt, RISING);
 
     //Initialise
-    calculateDuration("5");
+    calculateDuration("1");
 }
 
 void setTimerInterrupt()
@@ -88,36 +86,30 @@ void loop()
     if (settingTimer)
         setTimer();
     else
-        countDown();
+        countDown(secondsSinceLastUpdate, secondsTick, currentColumn, currentRow);
 
     delay(100);
 }
 
 void setTimer()
 {
-    if (debug)
-        Serial.println("setTimer()");
-
-    calculateDuration("1");
-
     settingTimer = false;
 }
 
-void countDown()
+void countDown(uint32_t &secondsSinceLastUpdate, uint32_t &secondsTick, uint32_t &currentColumn, int32_t &currentRow)
 {
-    if (debug)
-        Serial.println("countDown()");
+    uint32_t indexTime;
 
     //Read serial value
     while (Serial.available())
     {
-        minutesDuration = Serial.readString();
-        calculateDuration(minutesDuration);
+        String minutesDuration = Serial.readString();
+        secondsTick = calculateDuration(minutesDuration);
     }
 
     //Tick seconds
     DateTime now = myRTC.now();
-    currentTime = now.unixtime();
+    uint32_t currentTime = now.unixtime();
 
     if (currentTime != indexTime)
     {
@@ -133,23 +125,16 @@ void countDown()
 
     if (secondsSinceLastUpdate >= secondsTick)
     {
-        updateMatrix();
+        updateMatrix(currentColumn, currentRow);
         secondsSinceLastUpdate = 0;
     }
 
     //Flash cursor
-    flashCursor();
+    flashCursor(currentColumn, currentRow);
 }
 
-void calculateDuration(String input)
+uint32_t calculateDuration(String input)
 {
-    if (debug)
-    {
-        Serial.print("calculateDuration(");
-        Serial.print(input);
-        Serial.println(")");
-    }
-
     uint32_t parsedInput = input.toInt();
 
     secondDuration = parsedInput * 60;
@@ -159,34 +144,11 @@ void calculateDuration(String input)
     Serial.print(" = ");
     Serial.println(secondDuration);
 
-    secondsTick = calculateTick(secondDuration);
-
-    reset();
-}
-
-void reset()
-{
-    if (debug)
-        Serial.println("reset()");
-
-    currentRow = 7;
-    currentColumn = 0;
-
-    DateTime now = myRTC.now();
-    currentTime = now.unixtime();
-    indexTime = currentTime;
-
-    Serial.print("time: ");
-    Serial.println(indexTime);
-
-    fill();
+    return calculateTick(secondDuration);
 }
 
 void fill()
 {
-    if (debug)
-        Serial.println("fill()");
-
     m.clear();
 
     for (int i = 0; i < 8; i++)
@@ -197,13 +159,6 @@ void fill()
 
 uint32_t calculateTick(int duration)
 {
-    if (debug)
-    {
-        Serial.print("calculateTick(");
-        Serial.print(duration);
-        Serial.println(")");
-    }
-
     double tick = (double)duration / (double)lightsInMatrix;
     uint32_t flooredTick = round(tick);
 
@@ -219,11 +174,8 @@ uint32_t calculateTick(int duration)
     return flooredTick;
 }
 
-void updateMatrix()
+void updateMatrix(uint32_t &currentColumn, int32_t &currentRow)
 {
-    if (debug)
-        Serial.println("updateMatrix()");
-
     currentRow -= 1;
     if (currentRow < 0)
     {
@@ -242,11 +194,8 @@ void updateMatrix()
     m.setDot(currentColumn, currentRow, false);
 }
 
-void flashCursor()
+void flashCursor(uint32_t currentColumn, int32_t currentRow)
 {
-    if (debug)
-        Serial.println("flashCursor()");
-
     m.setDot(currentColumn, currentRow, true);
     delay(250);
     m.setDot(currentColumn, currentRow, false);
@@ -255,13 +204,11 @@ void flashCursor()
 
 void alarm()
 {
-    if (debug)
-        Serial.println("alarm()");
-
     while (true)
     {
         fill();
         delay(250);
+        
         m.clear();
         delay(250);
     }
