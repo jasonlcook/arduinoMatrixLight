@@ -4,7 +4,6 @@
 #include <MaxMatrix.h>
 
 //todo:
-//  -   allow the input and updating of the duration
 //  -   invert led matrix to count down instead of up
 //  -   set the current digit to blink every seccond
 
@@ -14,7 +13,7 @@ uint32_t indexTime;
 uint32_t currentTime;
 uint32_t secondsSinceLastUpdate;
 
-String duration;
+String minutesDuration;
 uint32_t secondDuration;
 uint32_t secondsTick;
 
@@ -37,54 +36,37 @@ void setup()
     Wire.begin();
 
     //LED Matix init
-    m.init();          // MAX7219 initialization
+    m.init();
     m.setIntensity(0); // initial led matrix intensity, 0-15
 
-    //set index time
-    DateTime now = myRTC.now();
-    currentTime = now.unixtime();
-    indexTime = currentTime;
-
-    Serial.print("indexTime: ");
-    Serial.println(indexTime);
-
-    Serial.print("currentTime: ");
-    Serial.println(currentTime);
-
+    //Initialise
     //set default duration
-    secondDuration = 64;
-    secondsTick = calculateTick(secondDuration);
-
-    Serial.print("secondDuration: ");
-    Serial.println(secondDuration);
-
-    Serial.print("secondsTick: ");
-    Serial.println(secondsTick);
-
-    //set LED matrix
-    m.setDot(0, 0, true);
+    calculateDuration("1");
 }
 
 void loop()
-{ 
+{
+    while (Serial.available())
+    {
+        minutesDuration = Serial.readString();
+        calculateDuration(minutesDuration);
+    }
+
     DateTime now = myRTC.now();
     currentTime = now.unixtime();
-
+    
     //tick seconds
     if (currentTime != indexTime)
     {
         secondsSinceLastUpdate++;
         indexTime = currentTime;
     }
-
-    Serial.print("secondsSinceLastUpdate: ");
+    
+    Serial.print(currentTime);
+    Serial.print(" : ");
+    Serial.print(indexTime);
+    Serial.print(" : ");
     Serial.println(secondsSinceLastUpdate);
-
-    Serial.print("currentTime: ");
-    Serial.println(currentTime);
-
-    Serial.print("indexTime: ");
-    Serial.println(indexTime);
 
     if (secondsSinceLastUpdate >= secondsTick)
     {
@@ -92,16 +74,63 @@ void loop()
         secondsSinceLastUpdate = 0;
     }
 
-    Serial.print("secondsSinceLastUpdate: ");
-    Serial.println(secondsSinceLastUpdate);
-
     delay(500);
+}
+
+void calculateDuration(String input)
+{
+    uint32_t parsedInput = input.toInt();
+
+    secondDuration = parsedInput * 60;
+    
+    Serial.print(parsedInput);
+    Serial.print(" * 60 ");
+    Serial.print(" = ");
+    Serial.println(secondDuration);    
+    
+    secondsTick = calculateTick(secondDuration);
+
+    if (secondsTick < 1)
+    {
+        secondsTick = 1;
+        Serial.println("TICK UPDATED TO 1");  
+    }
+    
+    reset();
+}
+
+void reset()
+{
+    currentRow = 0;
+    currentColumn = 0;
+
+    DateTime now = myRTC.now();
+    currentTime = now.unixtime();
+    indexTime = currentTime;
+
+    Serial.print("time: ");
+    Serial.println(indexTime);
+
+    //set LED matrix
+    m.clear();
+    m.setDot(0, 0, true);
 }
 
 uint32_t calculateTick(int duration)
 {
-    float tick = duration / lightsInMatrix;
-    return floor(tick);
+    double tick = (double)duration / (double)lightsInMatrix;
+    uint32_t flooredTick = round(tick);
+    
+    Serial.print(duration);
+    Serial.print(" / ");
+    Serial.print(lightsInMatrix);
+    Serial.print(" = ");
+    Serial.print(flooredTick);
+    Serial.print(" (");
+    Serial.print(tick);
+    Serial.println(")");
+
+    return flooredTick;
 }
 
 void updateMatrix()
