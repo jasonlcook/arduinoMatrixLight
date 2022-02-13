@@ -6,7 +6,6 @@
 //todo:
 //  -   add alarm buzzer
 //  -   add update via bluetooth
-//  -   set deletions from top left to bottom right
 
 //Time
 RTClib myRTC;
@@ -27,8 +26,8 @@ int maxInUse = 1;
 MaxMatrix m(DIN, CS, CLK, maxInUse);
 
 uint32_t lightsInMatrix = 64;
-uint32_t currentColumn = 0;
-uint32_t currentRow = 0;
+uint32_t currentColumn;
+int32_t currentRow;
 bool cursorState = true;
 
 void setup()
@@ -92,18 +91,12 @@ void calculateDuration(String input)
 
     secondsTick = calculateTick(secondDuration);
 
-    if (secondsTick < 1)
-    {
-        secondsTick = 1;
-        Serial.println("TICK UPDATED TO 1");
-    }
-
     reset();
 }
 
 void reset()
 {
-    currentRow = 0;
+    currentRow = 7;
     currentColumn = 0;
 
     DateTime now = myRTC.now();
@@ -113,8 +106,13 @@ void reset()
     Serial.print("time: ");
     Serial.println(indexTime);
 
-    //set LED matrix
+    fill();
+}
+
+void fill()
+{
     m.clear();
+
     for (int i = 0; i < 8; i++)
     {
         m.setColumn(i, B11111111);
@@ -140,18 +138,22 @@ uint32_t calculateTick(int duration)
 
 void updateMatrix()
 {
-    currentRow += 1;
-    if (currentRow > 7)
+    currentRow -= 1;
+    if (currentRow < 0)
     {
-        currentRow = 0;
+        currentRow = 7;
         currentColumn += 1;
         if (currentColumn > 7)
         {
-            m.clear();
-            currentRow = 0;
+            fill();
+            currentRow = 7;
             currentColumn = 0;
         }
     }
+
+    Serial.print(currentRow);
+    Serial.print(" x ");
+    Serial.println(currentColumn);
 
     m.setDot(currentColumn, currentRow, false);
 }
