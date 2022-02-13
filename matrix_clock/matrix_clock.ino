@@ -63,27 +63,30 @@ void setTimerInterrupt()
 }
 
 void loop()
-{ //Read serial value
-    while (Serial.available())
-    {
-        String minutesDuration = Serial.readString();
-        secondsTick = calculateDuration(lightsInMatrix, minutesDuration);
-
-        fillMatrix();
-        currentColumn = 0;
-        currentRow = 7;
-    }
-
+{
     if (settingTimer)
         settingTimer = setTimer();
     else
     {
-        flashCursor(currentColumn, currentRow);
+        //Read serial value
+        while (Serial.available())
+        {
+            String minutesDuration = Serial.readString();
+            secondsTick = calculateDuration(lightsInMatrix, minutesDuration);
+
+            fillMatrix();
+            currentColumn = 0;
+            currentRow = 7;
+        }
 
         bool update = countDown(indexTime, secondsSinceLastUpdate, secondsTick, currentColumn, currentRow);
         if (update)
         {
             updateMatrix(currentColumn, currentRow);
+        }
+        else
+        {
+            flashCursor(currentColumn, currentRow);
         }
     }
 }
