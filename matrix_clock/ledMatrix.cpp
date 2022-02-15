@@ -6,6 +6,9 @@ const byte CLK = 6; // CLK pin of MAX7219 module
 const byte CS = 5;  // CS pin of MAX7219 module
 const byte maxInUse = 1;
 
+const byte ledsPerRow = 8;
+const byte columnQuantity = 7;
+
 MaxMatrix matrix(DIN, CS, CLK, maxInUse);
 
 void setupMatrix()
@@ -23,6 +26,27 @@ void incrementMatrix()
 void decrementMatrix()
 {
     matrix.setDot(1, 7, true);
+}
+
+void updateMatrix(uint32_t value)
+{
+    int rows = value % ledsPerRow;
+    int columns = value / ledsPerRow;
+
+    clearMatrix();
+
+    for (int c = 0; c < columns; c++)
+    {
+        for (int r = 0; r < ledsPerRow; r++)
+        {
+            matrix.setDot(c, r, true);
+        }
+    }
+
+    for (int r = 0; r < rows; r++)
+    {
+        matrix.setDot(columns, r, true);
+    }
 }
 
 void updateMatrix(uint32_t &currentColumn, int32_t &currentRow)

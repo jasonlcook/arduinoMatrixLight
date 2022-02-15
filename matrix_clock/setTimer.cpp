@@ -23,7 +23,6 @@ uint32_t setTimer()
     Serial.println("Timer Set");
     clearMatrix();
 
-    uint32_t duration;
     bool exit = true;
     while (exit)
     {
@@ -55,11 +54,10 @@ uint32_t setTimer()
         if (!setDownValue)
         {
             duration--;
+            if (duration < 1)
+                duration = 1;
 
-             incrementMatrix();
-
-            Serial.print("setDownValue: ");
-            Serial.println(setDownValue);
+            updateMatrix(duration);
 
             Serial.print("duration: ");
             Serial.println(duration);
@@ -68,11 +66,7 @@ uint32_t setTimer()
         if (!setUpValue)
         {
             duration++;
-
-             decrementMatrix();
-
-            Serial.print("setUpValue: ");
-            Serial.println(setUpValue);
+            updateMatrix(duration);
 
             Serial.print("duration: ");
             Serial.println(duration);
