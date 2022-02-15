@@ -15,6 +15,16 @@ void setupMatrix()
     matrix.setIntensity(0); // initial led matrix intensity, 0-15
 }
 
+void incrementMatrix()
+{
+    matrix.setDot(0, 7, true);
+}
+
+void decrementMatrix()
+{
+    matrix.setDot(1, 7, true);
+}
+
 void updateMatrix(uint32_t &currentColumn, int32_t &currentRow)
 {
     currentRow -= 1;

@@ -19,8 +19,8 @@ const byte PIN_LED = 13;
 volatile byte settingTimer = false;
 
 const byte PIN_SET_MODE = 2;
+const byte PIN_SET_DOWN = 8;
 const byte PIN_SET_UP = 9;
-const byte PIN_SET_DOWN = 10;
 
 void setup()
 {
@@ -30,8 +30,8 @@ void setup()
     pinMode(PIN_LED, OUTPUT);
 
     //Buttons
-    pinMode(PIN_SET_UP, OUTPUT);
-    pinMode(PIN_SET_DOWN, OUTPUT);
+    pinMode(PIN_SET_UP, INPUT_PULLUP);
+    pinMode(PIN_SET_DOWN, INPUT_PULLUP);
 
     pinMode(PIN_SET_MODE, INPUT_PULLUP);
 
@@ -60,8 +60,13 @@ void loop()
     if (settingTimer)
     {
         uint32_t duration = setTimer();
+
+        Serial.print("Duration: ");
+        Serial.println(duration);
+
         setupCountDown(duration);
-        settingTimer = false;        
+        
+        settingTimer = false;
     }
     else
     {

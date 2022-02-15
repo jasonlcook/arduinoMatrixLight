@@ -9,6 +9,8 @@ byte setUpValue;
 byte pinSetDown;
 byte setDownValue;
 
+uint32_t duration = 1;
+
 void setupSettings(byte PIN_SET_MODE, byte PIN_SET_UP, byte PIN_SET_DOWN)
 {
     pinSetMode = PIN_SET_MODE;
@@ -19,6 +21,7 @@ void setupSettings(byte PIN_SET_MODE, byte PIN_SET_UP, byte PIN_SET_DOWN)
 uint32_t setTimer()
 {
     Serial.println("Timer Set");
+    clearMatrix();
 
     uint32_t duration;
     bool exit = true;
@@ -29,6 +32,7 @@ uint32_t setTimer()
         {
             String input = Serial.readString();
             duration = input.toInt();
+            exit = false;
         }
 
         setModeValue = digitalRead(pinSetMode);
@@ -37,19 +41,42 @@ uint32_t setTimer()
 
         //exit on second button press
         if (!setModeValue)
+        {
+            Serial.print("setModeValue: ");
+            Serial.println(setModeValue);
+
             exit = false;
 
-        Serial.print("setModeValue: ");
-        Serial.println(setModeValue);
+            delay(1000);
 
-        Serial.print("setUpValue: ");
-        Serial.println(setUpValue);
+            Serial.println("Timer Set exit");
+        }
 
-        Serial.print("setDownValue: ");
-        Serial.println(setDownValue);
+        if (!setDownValue)
+        {
+            duration--;
 
-        Serial.print("exit: ");
-        Serial.println(exit);
+             incrementMatrix();
+
+            Serial.print("setDownValue: ");
+            Serial.println(setDownValue);
+
+            Serial.print("duration: ");
+            Serial.println(duration);
+        }
+
+        if (!setUpValue)
+        {
+            duration++;
+
+             decrementMatrix();
+
+            Serial.print("setUpValue: ");
+            Serial.println(setUpValue);
+
+            Serial.print("duration: ");
+            Serial.println(duration);
+        }
     }
 
     return duration;
