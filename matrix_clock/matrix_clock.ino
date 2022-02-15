@@ -18,26 +18,33 @@ const byte PIN_LED = 13;
 
 volatile byte settingTimer = false;
 
-const byte PIN_SET_INTERRUPT = 2;
+const byte PIN_SET_MODE = 2;
 const byte PIN_SET_UP = 9;
 const byte PIN_SET_DOWN = 10;
 
 void setup()
 {
-    setupMatrix();
-
-    //Time init
     Serial.begin(9600);
     Wire.begin();
 
-    //Buttons
     pinMode(PIN_LED, OUTPUT);
-    pinMode(PIN_SET_INTERRUPT, INPUT_PULLUP);
 
-    attachInterrupt(digitalPinToInterrupt(PIN_SET_INTERRUPT), setTimerInterrupt, RISING);
+    //Buttons
+    pinMode(PIN_SET_UP, OUTPUT);
+    pinMode(PIN_SET_DOWN, OUTPUT);
 
-    //Initialise
-    setupCountDown("1");
+    pinMode(PIN_SET_MODE, INPUT_PULLUP);
+
+    attachInterrupt(digitalPinToInterrupt(PIN_SET_MODE), setTimerInterrupt, RISING);
+
+    //LED Matrix constructor
+    setupMatrix();
+
+    //Countdown timer constructor
+    setupCountDown(1);
+
+    //Countdown timer constructor
+    setupSettings(PIN_SET_MODE, PIN_SET_UP, PIN_SET_DOWN);
 }
 
 void setTimerInterrupt()
@@ -51,15 +58,13 @@ void setTimerInterrupt()
 void loop()
 {
     if (settingTimer)
-        settingTimer = setTimer();
+    {
+        uint32_t duration = setTimer();
+        setupCountDown(duration);
+        settingTimer = false;        
+    }
     else
     {
-        //Read serial value
-        while (Serial.available())
-        {
-            String minutesDuration = Serial.readString();
-        }
-
         countDown();
     }
 }

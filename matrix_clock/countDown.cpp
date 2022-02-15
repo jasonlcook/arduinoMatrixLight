@@ -8,14 +8,14 @@ uint32_t lightsInMatrix = 64;
 uint32_t currentColumn = 0;
 int32_t currentRow = 7;
 
-void setupCountDown(String minutesDuration)
+void setupCountDown(int32_t duration)
 {
     //Tick seconds
     RTClib myRTC;
     DateTime now = myRTC.now();
     indexTime = now.unixtime();
 
-    secondsTick = calculateDuration(minutesDuration);
+    secondsTick = calculateDuration(duration);
 
     fillMatrix();
     currentColumn = 0;
@@ -49,12 +49,11 @@ void countDown()
     flashCursor(currentColumn, currentRow);
 }
 
-uint32_t calculateDuration(String input)
+uint32_t calculateDuration(uint32_t input)
 {
-    uint32_t parsedInput = input.toInt();
-    uint32_t secondDuration = parsedInput * 60;
+    uint32_t secondDuration = input * 60;
 
-    Serial.print(parsedInput);
+    Serial.print(input);
     Serial.print(" * 60 ");
     Serial.print(" = ");
     Serial.println(secondDuration);

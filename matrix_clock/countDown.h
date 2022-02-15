@@ -5,9 +5,9 @@
 #include "ledMatrix.h"
 #include "Arduino.h"
 
-void setupCountDown(String minutesDuration);
+void setupCountDown(int32_t duration);
 void countDown();
-uint32_t calculateDuration(String input);
+uint32_t calculateDuration(uint32_t input);
 uint32_t calculateTick(int duration);
 
 #endif
