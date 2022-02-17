@@ -6,7 +6,7 @@
 #include "Arduino.h"
 
 void setupCountDown(int32_t duration);
-void countDown();
+void startCountDown();
 uint32_t calculateDuration(uint32_t input);
 uint32_t calculateTick(int duration);
 

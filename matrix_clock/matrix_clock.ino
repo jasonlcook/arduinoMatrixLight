@@ -1,7 +1,9 @@
 #include <Wire.h>
 
-#include "countDown.h"
+#include "idle.h"
 #include "setTimer.h"
+#include "countDown.h"
+
 #include "ledMatrix.h"
 
 //todo:
@@ -17,7 +19,8 @@
 //Buttons
 const byte PIN_LED = 13;
 
-volatile byte settingTimer = false;
+volatile byte modeChange = false;
+volatile byte currentMode = 0;
 
 const byte PIN_SET_MODE = 2;
 const byte PIN_SET_DOWN = 9;
@@ -50,27 +53,48 @@ void setup()
 
 void setTimerInterrupt()
 {
-    if (!settingTimer)
-        settingTimer = true;
+    if (!modeChange)
+        modeChange = true;
     else
-        settingTimer = false;
+        modeChange = false;
 }
 
 void loop()
 {
-    if (settingTimer)
+    if (modeChange)
     {
-        uint32_t duration = setTimer();
+        currentMode++;
+
+        if (currentMode > 2)
+            currentMode = 0;
+
+        modeChange = false;
+    }
+
+    switch (currentMode)
+    {
+    case 1:
+        int32_t duration;
+
+        Serial.println("Curernt mode: Set timer");
+        
+        duration = setTimer();
 
         Serial.print("Duration: ");
         Serial.println(duration);
 
         setupCountDown(duration);
+
+        break;
+    case 2:
+        Serial.println("Curernt mode: Countdown");
         
-        settingTimer = false;
-    }
-    else
-    {
-        countDown();
+        startCountDown();
+        break;
+    default:
+        Serial.println("Curernt mode: Idle");
+        
+        startIdle();
+        break;
     }
 }

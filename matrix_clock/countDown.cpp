@@ -4,8 +4,8 @@ uint32_t secondsTick;
 uint32_t secondsSinceLastUpdate = 0;
 uint32_t indexTime;
 
-uint32_t lightsInMatrix = 64;
-uint32_t currentColumn = 0;
+byte lightsInMatrix = 64;
+byte currentColumn = 0;
 int32_t currentRow = 7;
 
 void setupCountDown(int32_t duration)
@@ -22,7 +22,7 @@ void setupCountDown(int32_t duration)
     currentRow = 7;
 }
 
-void countDown()
+void startCountDown()
 {
     RTClib myRTC;
     DateTime now = myRTC.now();
@@ -43,7 +43,7 @@ void countDown()
     if (secondsSinceLastUpdate >= secondsTick)
     {
         secondsSinceLastUpdate = 0;
-        updateMatrix(currentColumn, currentRow);
+        updateMatrix(currentColumn, currentRow, true);
     }
 
     flashCursor(currentColumn, currentRow);

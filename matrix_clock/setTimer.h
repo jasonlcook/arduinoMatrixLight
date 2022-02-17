@@ -5,6 +5,6 @@
 #include "Arduino.h"
 
 void setupSettings(byte PIN_SET_MODE, byte PIN_SET_UP, byte PIN_SET_DOWN);
-uint32_t setTimer();
+int32_t setTimer();
 
 #endif

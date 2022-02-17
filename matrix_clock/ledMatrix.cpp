@@ -18,17 +18,12 @@ void setupMatrix()
     matrix.setIntensity(0); // initial led matrix intensity, 0-15
 }
 
-void incrementMatrix()
+void setMatrix(byte currentColumn, byte currentRow, bool state)
 {
-    matrix.setDot(0, 7, true);
+    matrix.setDot(currentColumn, currentRow, state);
 }
 
-void decrementMatrix()
-{
-    matrix.setDot(1, 7, true);
-}
-
-void updateMatrixByValue(uint32_t value)
+void updateMatrixByValue(int32_t value)
 {
     int rows = value % ledsPerRow;
     int columns = value / ledsPerRow;
@@ -49,7 +44,7 @@ void updateMatrixByValue(uint32_t value)
     }
 }
 
-void updateMatrix(uint32_t &currentColumn, int32_t &currentRow)
+void updateMatrix(byte &currentColumn, int32_t &currentRow, bool state)
 {
     currentRow -= 1;
     if (currentRow < 0)
@@ -67,7 +62,7 @@ void updateMatrix(uint32_t &currentColumn, int32_t &currentRow)
     Serial.print(" x ");
     Serial.println(currentColumn);
 
-    matrix.setDot(currentColumn, currentRow, false);
+    matrix.setDot(currentColumn, currentRow, state);
 }
 
 void alarm()
@@ -84,7 +79,7 @@ void alarm()
     }
 }
 
-void flashCursor(uint32_t currentColumn, int32_t currentRow)
+void flashCursor(byte currentColumn, int32_t currentRow)
 {
     Serial.print("FLASH: ");
     Serial.print(currentRow);
