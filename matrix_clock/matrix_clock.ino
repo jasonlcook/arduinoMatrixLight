@@ -14,7 +14,8 @@
 //  -   user RTC alarm for countdown to allow for poweroutage
 //  -   set one minute mode to only use 60 LEDs
 //  -   replace delays with clock reads
-//  -   Set Matrix with bit patterns
+//  -   simplify button vars between idle and set timer 
+//  -   make idle animation toggle light rather then arbitrarily set its state 
 
 //Buttons
 const byte PIN_LED = 13;
@@ -47,7 +48,10 @@ void setup()
     //Countdown timer constructor
     setupCountDown(1);
 
-    //Countdown timer constructor
+    //ldle constructor
+    setupIdle(PIN_SET_MODE, PIN_SET_UP, PIN_SET_DOWN);
+
+    //Timer constructor
     setupSettings(PIN_SET_MODE, PIN_SET_UP, PIN_SET_DOWN);
 }
 
