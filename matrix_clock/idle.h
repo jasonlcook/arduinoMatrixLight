@@ -5,6 +5,10 @@
 #include "Arduino.h"
 
 void setupIdle(byte PIN_SET_MODE, byte PIN_SET_UP, byte PIN_SET_DOWN);
+
+void idleButtonDown();
+void idleButtonUp();
+
 void startIdle();
 
 #endif
