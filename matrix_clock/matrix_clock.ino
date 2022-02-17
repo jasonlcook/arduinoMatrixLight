@@ -13,7 +13,6 @@
 //  -   user RTC alarm for countdown to allow for poweroutage
 //  -   set one minute mode to only use 60 LEDs
 //  -   replace delays with clock reads
-//  -   make idle animation toggle light rather then arbitrarily set its state
 
 //Buttons
 const byte PIN_LED = 13;
@@ -65,10 +64,11 @@ void setup()
     pinMode(PIN_SET_UP, INPUT_PULLUP);
     pinMode(PIN_SET_DOWN, INPUT_PULLUP);
 
-    //LED Matrix constructor
+    //LED Matrix setup
     setupMatrix();
 
-    fillMatrix();
+    //Idle setup
+    setupIdle();
 }
 
 void setTimerInterrupt()
@@ -266,27 +266,17 @@ void loop()
         break;
     default:
         //idle
-        if (buttonDownShortPress)
+        if (buttonDownShortPress || buttonDownLongPress)
         {
             idleButtonDown();
             buttonDownShortPress = false;
-        }
-
-        if (buttonDownLongPress)
-        {
-            idleButtonDown();
             buttonDownLongPress = false;
         }
 
-        if (buttonUpShortPress)
+        if (buttonUpShortPress || buttonUpShortPress)
         {
             idleButtonUp();
             buttonUpShortPress = false;
-        }
-
-        if (buttonUpShortPress)
-        {
-            idleButtonUp();
             buttonUpLongPress = false;
         }
 
