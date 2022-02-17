@@ -46,13 +46,11 @@ void updateMatrixByValue(int32_t value)
 
 void clearMatrix()
 {
-    Serial.println("Clear matrix");
     matrix.clear();
 }
 
 void fillMatrix()
 {
-    Serial.println("Fill matrix");
     for (int i = 0; i < 8; i++)
     {
         matrix.setColumn(i, B11111111);

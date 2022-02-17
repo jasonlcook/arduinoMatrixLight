@@ -61,8 +61,7 @@ void setup()
 
     //Buttons
     pinMode(PIN_SET_MODE, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(PIN_SET_MODE), setTimerInterrupt, RISING);
-
+    attachInterrupt(digitalPinToInterrupt(PIN_SET_MODE), setTimerInterrupt, LOW);
     pinMode(PIN_SET_UP, INPUT_PULLUP);
     pinMode(PIN_SET_DOWN, INPUT_PULLUP);
 
@@ -74,10 +73,7 @@ void setup()
 
 void setTimerInterrupt()
 {
-    if (!modeChange)
-        modeChange = true;
-    else
-        modeChange = false;
+    modeChange = true;
 }
 
 void loop()
@@ -92,8 +88,6 @@ void loop()
     buttonUpState = digitalRead(PIN_SET_UP);
     if (buttonUpState == LOW && buttonUpState != buttonUpLastState)
     {
-        Serial.println("Up button pressed");
-
         lastDebounceTime = millis();
         buttonUpLastState = buttonUpState;
     }
@@ -105,12 +99,10 @@ void loop()
 
         if (elapsedTime > longPressDelay)
         {
-            Serial.println("Long press");
             buttonUpLongPress = true;
         }
         else
         {
-            Serial.println("Short press");
             buttonUpShortPress = true;
         }
 
@@ -120,8 +112,6 @@ void loop()
     buttonDownState = digitalRead(PIN_SET_DOWN);
     if (buttonDownState == LOW && buttonDownState != buttonDownLastState)
     {
-        Serial.println("Down button pressed");
-
         lastDebounceTime = millis();
         buttonDownLastState = buttonDownState;
     }
@@ -133,12 +123,10 @@ void loop()
 
         if (elapsedTime > longPressDelay)
         {
-            Serial.println("Long press");
             buttonDownLongPress = true;
         }
         else
         {
-            Serial.println("Short press");
             buttonDownShortPress = true;
         }
 
@@ -150,14 +138,14 @@ void loop()
         currentMode++;
 
         if (currentMode > 2)
-            currentMode = 0;
+            currentMode = 1;
 
         switch (currentMode)
         {
         case 1:
             Serial.println("Curernt mode: Set timer");
 
-            clearMatrix();            
+            clearMatrix();
             updateMatrixByValue(currentDuration);
 
             break;
@@ -191,9 +179,6 @@ void loop()
         currentDuration = setTimer();
         if (currentDuration != lastDuration)
         {
-            Serial.print("currentDuration: ");
-            Serial.println(currentDuration);
-
             updateMatrixByValue(currentDuration);
             lastDuration = currentDuration;
         }
