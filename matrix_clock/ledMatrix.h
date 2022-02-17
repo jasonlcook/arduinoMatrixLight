@@ -7,7 +7,7 @@
 void setupMatrix();
 void incrementMatrix();
 void decrementMatrix();
-void updateMatrix(uint32_t value);
+void updateMatrixByValue(uint32_t value);
 void updateMatrix(uint32_t &currentColumn, int32_t &currentRow);
 void alarm();
 void flashCursor(uint32_t currentColumn, int32_t currentRow);

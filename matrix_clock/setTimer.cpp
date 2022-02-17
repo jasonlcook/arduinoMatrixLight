@@ -1,15 +1,22 @@
 #include "setTimer.h"
 
+const uint64_t longPressDelay = 500;
+uint32_t lastDebounceTime = 0;
+
 byte pinSetMode;
-byte setModeValue;
+byte buttonModeState;
+byte buttonModeLastState = HIGH;
 
 byte pinSetUp;
-byte setUpValue;
+byte buttonUpState;
+byte buttonUpLastState = HIGH;
 
 byte pinSetDown;
-byte setDownValue;
+byte buttonDownState;
+byte buttonDownLastState = HIGH;
 
-uint32_t duration = 1;
+uint32_t maxDuration = 40;
+int32_t duration = 1;
 
 void setupSettings(byte PIN_SET_MODE, byte PIN_SET_UP, byte PIN_SET_DOWN)
 {
@@ -34,42 +41,112 @@ uint32_t setTimer()
             exit = false;
         }
 
-        setModeValue = digitalRead(pinSetMode);
-        setUpValue = digitalRead(pinSetUp);
-        setDownValue = digitalRead(pinSetDown);
-
-        //exit on second button press
-        if (!setModeValue)
+        buttonModeState = digitalRead(pinSetMode);
+        //When pressed
+        if (buttonModeState == LOW && buttonModeState != buttonModeLastState)
         {
-            Serial.print("setModeValue: ");
-            Serial.println(setModeValue);
+            Serial.println("Mode button pressed");
 
-            exit = false;
-
-            delay(1000);
-
-            Serial.println("Timer Set exit");
+            lastDebounceTime = millis();
+            buttonModeLastState = buttonModeState;
         }
 
-        if (!setDownValue)
+        //When released
+        if (buttonModeState == HIGH && buttonModeState != buttonModeLastState)
         {
-            duration--;
+            unsigned long delay = millis() - lastDebounceTime;
+            char str[10];
+
+            Serial.println("Mode button up");
+            Serial.print(delay);
+            Serial.print(" : ");
+            Serial.println(sprintf(str, "%u", longPressDelay));
+
+            if (delay > longPressDelay)
+            {
+                Serial.println("Timer Set exit");
+                exit = false;
+            }
+
+            buttonModeLastState = buttonModeState;
+        }
+
+        buttonUpState = digitalRead(pinSetUp);
+        //When pressed
+        if (buttonUpState == LOW && buttonUpState != buttonUpLastState)
+        {
+            Serial.println("Up button pressed");
+
+            lastDebounceTime = millis();
+            buttonUpLastState = buttonUpState;
+        }
+
+        //When released
+        if (buttonUpState == HIGH && buttonUpState != buttonUpLastState)
+        {
+            unsigned long delay = millis() - lastDebounceTime;
+            char str[10];
+
+            Serial.println("Up button released");
+            Serial.print(delay);
+            Serial.print(" : ");
+            Serial.println(sprintf(str, "%u", longPressDelay));
+
+            if (delay > longPressDelay)
+            {
+                //long press inc by 5
+                duration += 5;
+            }
+            else
+            {
+                //short press inc by 1
+                duration++;
+            }
+
+            if (duration > maxDuration)
+                duration = maxDuration;
+
+            updateMatrixByValue(duration);
+            buttonUpLastState = buttonUpState;
+        }
+
+        buttonDownState = digitalRead(pinSetDown);
+        //When pressed
+        if (buttonDownState == LOW && buttonDownState != buttonDownLastState)
+        {
+            Serial.println("Down button pressed");
+
+            lastDebounceTime = millis();
+            buttonDownLastState = buttonDownState;
+        }
+
+        //When released
+        if (buttonDownState == HIGH && buttonDownState != buttonDownLastState)
+        {
+            unsigned long delay = millis() - lastDebounceTime;
+            char str[10];
+
+            Serial.println("Down button released");
+            Serial.print(delay);
+            Serial.print(" : ");
+            Serial.println(sprintf(str, "%u", longPressDelay));
+
+            if (delay > longPressDelay)
+            {
+                //long press dev by 5
+                duration -= 5;
+            }
+            else
+            {
+                //short press dev by 1
+                duration--;
+            }
+
             if (duration < 1)
                 duration = 1;
 
-            updateMatrix(duration);
-
-            Serial.print("duration: ");
-            Serial.println(duration);
-        }
-
-        if (!setUpValue)
-        {
-            duration++;
-            updateMatrix(duration);
-
-            Serial.print("duration: ");
-            Serial.println(duration);
+            updateMatrixByValue(duration);
+            buttonDownLastState = buttonDownState;
         }
     }
 

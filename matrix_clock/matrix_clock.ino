@@ -12,6 +12,7 @@
 //  -   user RTC alarm for countdown to allow for poweroutage
 //  -   set one minute mode to only use 60 LEDs
 //  -   replace delays with clock reads
+//  -   Set Matrix with bit patterns
 
 //Buttons
 const byte PIN_LED = 13;
@@ -19,8 +20,8 @@ const byte PIN_LED = 13;
 volatile byte settingTimer = false;
 
 const byte PIN_SET_MODE = 2;
-const byte PIN_SET_DOWN = 8;
-const byte PIN_SET_UP = 9;
+const byte PIN_SET_DOWN = 9;
+const byte PIN_SET_UP = 8;
 
 void setup()
 {
