@@ -3,9 +3,9 @@
 const uint64_t longPressDelay = 500;
 uint32_t lastDebounceTime = 0;
 
+bool buttonModeStateInitialised = false;
 byte pinSetMode;
 byte buttonModeState;
-byte buttonModeLastState = HIGH;
 
 byte pinSetUp;
 byte buttonUpState;
@@ -30,45 +30,30 @@ int32_t setTimer()
     Serial.println("Timer Set");
     clearMatrix();
 
-    bool exit = true;
-    while (exit)
+    bool stayInLoop = true;
+    while (stayInLoop)
     {
         //Read serial value
         while (Serial.available())
         {
             String input = Serial.readString();
             duration = input.toInt();
-            exit = false;
+            stayInLoop = false;
         }
 
         buttonModeState = digitalRead(pinSetMode);
-        //When pressed
-        if (buttonModeState == LOW && buttonModeState != buttonModeLastState)
-        {
-            Serial.println("Mode button pressed");
 
-            lastDebounceTime = millis();
-            buttonModeLastState = buttonModeState;
+        //To prevent the initial depression of the mode button causing the programme to jumping stright out of this mode buttonModeStateInitialised will be set on the first depression
+        if (buttonUpState == LOW && !buttonModeStateInitialised)
+        {
+            Serial.println("Initialised into set timer");
+            buttonModeStateInitialised = true;
         }
 
-        //When released
-        if (buttonModeState == HIGH && buttonModeState != buttonModeLastState)
+        if (buttonUpState == LOW && buttonModeStateInitialised)
         {
-            unsigned long delay = millis() - lastDebounceTime;
-            char str[10];
-
-            Serial.println("Mode button up");
-            Serial.print(delay);
-            Serial.print(" : ");
-            Serial.println(sprintf(str, "%u", longPressDelay));
-
-            if (delay > longPressDelay)
-            {
-                Serial.println("Timer Set exit");
-                exit = false;
-            }
-
-            buttonModeLastState = buttonModeState;
+            Serial.println("Exiting set timer");
+            stayInLoop = false;
         }
 
         buttonUpState = digitalRead(pinSetUp);
