@@ -9,12 +9,10 @@
 //todo:
 //  -   add alarm buzzer
 //  -   add tamper proofing
-//  -   add interupt buttons for setting
 //  -   add OLED for real output
 //  -   user RTC alarm for countdown to allow for poweroutage
 //  -   set one minute mode to only use 60 LEDs
 //  -   replace delays with clock reads
-//  -   simplify button vars between idle and set timer
 //  -   make idle animation toggle light rather then arbitrarily set its state
 
 //Buttons
@@ -40,8 +38,19 @@ byte buttonDownLongPress = false;
 volatile byte modeChange = false;
 byte currentMode = 0;
 
-int32_t currentDuration;
-int32_t lastDuration;
+int32_t currentDuration = 1;
+int32_t lastDuration = -1;
+
+bool alarming = false;
+const byte alarmDelay = 255;
+uint32_t alarmTime = 0;
+byte alarmState = 0;
+
+uint32_t elapsedTime = 0;
+
+const byte cursorDelay = 100;
+uint32_t cursorTime = 0;
+bool cursorState = false;
 
 void setup()
 {
@@ -60,8 +69,7 @@ void setup()
     //LED Matrix constructor
     setupMatrix();
 
-    //Countdown timer constructor
-    setupCountDown(1);
+    fillMatrix();
 }
 
 void setTimerInterrupt()
@@ -92,18 +100,19 @@ void loop()
 
     if (buttonUpState == HIGH && buttonUpState != buttonUpLastState)
     {
-        unsigned long delay = millis() - lastDebounceTime;
+        elapsedTime = millis() - lastDebounceTime;
         char str[10];
 
-        Serial.println("Up button released");
-        Serial.print(delay);
-        Serial.print(" : ");
-        Serial.println(sprintf(str, "%u", longPressDelay));
-
-        if (delay > longPressDelay)
+        if (elapsedTime > longPressDelay)
+        {
             Serial.println("Long press");
+            buttonUpLongPress = true;
+        }
         else
+        {
             Serial.println("Short press");
+            buttonUpShortPress = true;
+        }
 
         buttonUpLastState = buttonUpState;
     }
@@ -116,20 +125,22 @@ void loop()
         lastDebounceTime = millis();
         buttonDownLastState = buttonDownState;
     }
+
     if (buttonDownState == HIGH && buttonDownState != buttonDownLastState)
     {
-        unsigned long delay = millis() - lastDebounceTime;
+        elapsedTime = millis() - lastDebounceTime;
         char str[10];
 
-        Serial.println("Down button released");
-        Serial.print(delay);
-        Serial.print(" : ");
-        Serial.println(sprintf(str, "%u", longPressDelay));
-
-        if (delay > longPressDelay)
+        if (elapsedTime > longPressDelay)
+        {
             Serial.println("Long press");
+            buttonDownLongPress = true;
+        }
         else
+        {
             Serial.println("Short press");
+            buttonDownShortPress = true;
+        }
 
         buttonDownLastState = buttonDownState;
     }
@@ -145,12 +156,28 @@ void loop()
         {
         case 1:
             Serial.println("Curernt mode: Set timer");
+
+            clearMatrix();            
+            updateMatrixByValue(currentDuration);
+
             break;
         case 2:
             Serial.println("Curernt mode: Countdown");
+
+            fillMatrix();
+            cursorTime = millis();
+
+            setupCountDown(currentDuration);
+
+            break;
+        case 3:
+            Serial.println("Curernt mode: Alarm");
             break;
         default:
             Serial.println("Curernt mode: Idle");
+
+            fillMatrix();
+
             break;
         }
 
@@ -164,8 +191,35 @@ void loop()
         currentDuration = setTimer();
         if (currentDuration != lastDuration)
         {
-            setupCountDown(currentDuration);
+            Serial.print("currentDuration: ");
+            Serial.println(currentDuration);
+
+            updateMatrixByValue(currentDuration);
             lastDuration = currentDuration;
+        }
+
+        if (buttonDownShortPress)
+        {
+            setTimerButtonDownShortPress();
+            buttonDownShortPress = false;
+        }
+
+        if (buttonDownLongPress)
+        {
+            setTimerButtonDownLongPress();
+            buttonDownLongPress = false;
+        }
+
+        if (buttonUpShortPress)
+        {
+            setTimerButtonUpShortPress();
+            buttonUpShortPress = false;
+        }
+
+        if (buttonUpLongPress)
+        {
+            setTimerButtonUpLongPress();
+            buttonUpLongPress = false;
         }
         break;
     case 2:
@@ -184,7 +238,46 @@ void loop()
             buttonUpLongPress = false;
         }
 
-        startCountDown();
+        elapsedTime = millis() - cursorTime;
+        if (elapsedTime > cursorDelay)
+        {
+            flashCursor(cursorState);
+
+            if (cursorState)
+                cursorState = false;
+            else
+                cursorState = true;
+
+            cursorTime = millis();
+        }
+
+        alarming = startCountDown();
+        if (alarming)
+        {
+            //if the alarm is active then move to Alarm sate
+            currentMode = 3;
+            alarmTime = millis();
+        }
+
+        break;
+    case 3:
+        //Alarm
+        elapsedTime = millis() - alarmTime;
+        if (elapsedTime > alarmDelay)
+        {
+            if (alarmState)
+            {
+                fillMatrix();
+                alarmState = false;
+            }
+            else
+            {
+                clearMatrix();
+                alarmState = true;
+            }
+
+            alarmTime = millis();
+        }
         break;
     default:
         //idle

@@ -8,8 +8,6 @@ void setupMatrix();
 void setMatrix(byte currentColumn, byte currentRow, bool state);
 void updateMatrixByValue(int32_t value);
 void updateMatrix(byte &currentColumn, int32_t &currentRow, bool state);
-void alarm();
-void flashCursor(byte currentColumn, int32_t currentRow);
 void clearMatrix();
 void fillMatrix();
 

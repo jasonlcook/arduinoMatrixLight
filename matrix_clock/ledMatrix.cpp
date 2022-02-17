@@ -44,61 +44,15 @@ void updateMatrixByValue(int32_t value)
     }
 }
 
-void updateMatrix(byte &currentColumn, int32_t &currentRow, bool state)
-{
-    currentRow -= 1;
-    if (currentRow < 0)
-    {
-        currentRow = 7;
-        currentColumn += 1;
-        if (currentColumn > 7)
-        {
-            alarm();
-        }
-    }
-
-    Serial.print("CLEAR: ");
-    Serial.print(currentRow);
-    Serial.print(" x ");
-    Serial.println(currentColumn);
-
-    matrix.setDot(currentColumn, currentRow, state);
-}
-
-void alarm()
-{
-    Serial.println("Alarm");
-
-    while (true)
-    {
-        fillMatrix();
-        delay(250);
-
-        clearMatrix();
-        delay(250);
-    }
-}
-
-void flashCursor(byte currentColumn, int32_t currentRow)
-{
-    Serial.print("FLASH: ");
-    Serial.print(currentRow);
-    Serial.print(" x ");
-    Serial.println(currentColumn);
-
-    matrix.setDot(currentColumn, currentRow, true);
-    delay(250);
-    matrix.setDot(currentColumn, currentRow, false);
-    delay(250);
-}
-
 void clearMatrix()
 {
+    Serial.println("Clear matrix");
     matrix.clear();
 }
 
 void fillMatrix()
 {
+    Serial.println("Fill matrix");
     for (int i = 0; i < 8; i++)
     {
         matrix.setColumn(i, B11111111);

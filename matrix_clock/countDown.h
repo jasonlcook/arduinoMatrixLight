@@ -6,7 +6,8 @@
 #include "Arduino.h"
 
 void setupCountDown(int32_t duration);
-void startCountDown();
+bool startCountDown();
+void flashCursor(bool state);
 uint32_t calculateDuration(uint32_t input);
 uint32_t calculateTick(int duration);
 

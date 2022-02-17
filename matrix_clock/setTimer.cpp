@@ -1,47 +1,60 @@
 #include "setTimer.h"
 
-uint32_t maxDuration = 40;
-uint32_t minDuration = 1;
+const byte minDuration = 1;
+const byte maxDuration = 40;
 
-int32_t duration = 1;
+int32_t timerDuration = 1;
 
 //Down button
 //  Pressed short
 void setTimerButtonDownShortPress()
 {
-    Serial.println("Down short button pressed");
-    duration--;
+    Serial.println("Timer - Down short button pressed");
+    timerDuration--;
+    
+    Serial.print("Timer duration: ");
+    Serial.println(timerDuration);
 }
 
 //  Pressed long
 void setTimerButtonDownLongPress()
 {
-    Serial.println("Down long button pressed");
-    duration -= 5;
+    Serial.println("Timer - Down long button pressed");
+    timerDuration -= 5;
+    
+    Serial.print("Timer duration: ");
+    Serial.println(timerDuration);
 }
 
 //Up button
 //  Pressed short
 void setTimerButtonUpShortPress()
 {
-    Serial.println("Up short button pressed");
-    duration++;
+    Serial.println("Timer - Up short button pressed");
+    timerDuration++;
+    
+    Serial.print("Timer duration: ");
+    Serial.println(timerDuration);
 }
 
 //  Pressed long
 void setTimerButtonUpLongPress()
 {
-    Serial.println("Up long button pressed");
-    duration += 5;
+    Serial.println("Timer - Up long button pressed");
+    timerDuration += 5;
+    
+    Serial.print("Timer duration: ");
+    Serial.println(timerDuration);
 }
 
 int32_t setTimer()
 {
-    if (duration < minDuration)
-        duration = minDuration;
 
-    if (duration > maxDuration)
-        duration = maxDuration;
+    if (timerDuration < minDuration)
+        timerDuration = minDuration;
 
-    return duration;
+    if (timerDuration > maxDuration)
+        timerDuration = maxDuration;
+
+    return timerDuration;
 }

@@ -22,7 +22,7 @@ void setupCountDown(int32_t duration)
     currentRow = 7;
 }
 
-void startCountDown()
+bool startCountDown()
 {
     RTClib myRTC;
     DateTime now = myRTC.now();
@@ -34,30 +34,38 @@ void startCountDown()
         indexTime = currentTime;
     }
 
-    Serial.print(currentTime);
-    Serial.print(" : ");
-    Serial.print(indexTime);
-    Serial.print(" : ");
-    Serial.println(secondsSinceLastUpdate);
-
     if (secondsSinceLastUpdate >= secondsTick)
-    {
+    {        
+        //make sure the previous dot is off before calculating the current one
+        setMatrix(currentColumn, currentRow, false);
+
         secondsSinceLastUpdate = 0;
-        updateMatrix(currentColumn, currentRow, true);
+
+        currentRow -= 1;
+        if (currentRow < 0)
+        {
+            currentRow = 7;
+            currentColumn += 1;
+            if (currentColumn > 7)
+            {
+                return true;
+            }
+        }
+
+        setMatrix(currentColumn, currentRow, false);
     }
 
-    flashCursor(currentColumn, currentRow);
+    return false;
+}
+
+void flashCursor(bool state)
+{
+    setMatrix(currentColumn, currentRow, state);
 }
 
 uint32_t calculateDuration(uint32_t input)
 {
     uint32_t secondDuration = input * 60;
-
-    Serial.print(input);
-    Serial.print(" * 60 ");
-    Serial.print(" = ");
-    Serial.println(secondDuration);
-
     return calculateTick(secondDuration);
 }
 
@@ -65,15 +73,6 @@ uint32_t calculateTick(int duration)
 {
     double tick = (double)duration / (double)lightsInMatrix;
     uint32_t flooredTick = round(tick);
-
-    Serial.print(duration);
-    Serial.print(" / ");
-    Serial.print(lightsInMatrix);
-    Serial.print(" = ");
-    Serial.print(flooredTick);
-    Serial.print(" (");
-    Serial.print(tick);
-    Serial.println(")");
 
     return flooredTick;
 }
