@@ -13,6 +13,7 @@
 //  -   user RTC alarm for countdown to allow for poweroutage
 //  -   set one minute mode to only use 60 LEDs
 //  -   replace delays with clock reads
+//  -   allow calculateDuration to be set by serial write
 
 //Buttons
 const byte PIN_LED = 13;
@@ -51,6 +52,9 @@ const byte cursorDelay = 100;
 uint32_t cursorTime = 0;
 bool cursorState = false;
 
+uint32_t idleDelay;
+uint32_t idleTime = 0;
+
 void setup()
 {
     Serial.begin(9600);
@@ -69,6 +73,7 @@ void setup()
 
     //Idle setup
     setupIdle();
+    idleDelay = getLoopSpeed();
 }
 
 void setTimerInterrupt()
@@ -82,7 +87,11 @@ void loop()
     while (Serial.available())
     {
         String input = Serial.readString();
-        int32_t duration = input.toInt();
+        currentDuration = input.toInt();
+        currentMode = 2;
+
+        Serial.print("Current duration: ");
+        Serial.println(currentDuration);
     }
 
     buttonUpState = digitalRead(PIN_SET_UP);
@@ -165,6 +174,7 @@ void loop()
             Serial.println("Curernt mode: Idle");
 
             fillMatrix();
+            idleTime = millis();
 
             break;
         }
@@ -268,19 +278,24 @@ void loop()
         //idle
         if (buttonDownShortPress || buttonDownLongPress)
         {
-            idleButtonDown();
+            idleDelay = idleButtonDown();
             buttonDownShortPress = false;
             buttonDownLongPress = false;
         }
 
         if (buttonUpShortPress || buttonUpShortPress)
         {
-            idleButtonUp();
+            idleDelay = idleButtonUp();
             buttonUpShortPress = false;
             buttonUpLongPress = false;
         }
 
-        startIdle();
+        elapsedTime = millis() - idleTime;
+        if (elapsedTime > idleDelay)
+        {
+            startIdle();
+            idleTime = millis();
+        }
         break;
     }
 }

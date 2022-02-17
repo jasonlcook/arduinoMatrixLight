@@ -2,9 +2,10 @@
 
 bool idleMatrix[64];
 
-uint32_t loopSpeedMax = 1000;
-uint32_t loopSpeedMin = 100;
-uint32_t loopSpeed = 500;
+const uint16_t loopSpeedMax = 1000;
+const uint8_t loopSpeedMin = 0;
+const uint32_t loopSpeedStep = 100;
+int32_t loopSpeed = 500;
 
 void setupIdle()
 {
@@ -17,30 +18,39 @@ void setupIdle()
     fillMatrix();
 }
 
+int32_t getLoopSpeed()
+{
+    return loopSpeed;
+}
+
 //Down button
-void idleButtonDown()
+int32_t idleButtonDown()
 {
     Serial.println("Down button released");
 
-    loopSpeed -= 100;
+    loopSpeed -= loopSpeedStep;
     if (loopSpeed < loopSpeedMin)
         loopSpeed = loopSpeedMin;
 
     Serial.print("loop speed: ");
     Serial.println(loopSpeed);
+
+    return loopSpeed;
 }
 
 //Up button
-void idleButtonUp()
+int32_t idleButtonUp()
 {
     Serial.println("Up button released");
 
-    loopSpeed += 100;
+    loopSpeed += loopSpeedStep;
     if (loopSpeed > loopSpeedMax)
         loopSpeed = loopSpeedMax;
 
     Serial.print("loop speed: ");
     Serial.println(loopSpeed);
+
+    return loopSpeed;
 }
 
 void startIdle()
@@ -58,6 +68,4 @@ void startIdle()
     idleMatrix[index] = state;
 
     setMatrix(column, row, state);
-
-    delay(loopSpeed);
 }
