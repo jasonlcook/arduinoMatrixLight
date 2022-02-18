@@ -16,8 +16,6 @@
 //  -   set one minute mode to only use 60 LEDs
 //  -   allow calculateDuration to be set by serial write
 //  -   flash set timer buttons when held
-//  -   only increment to the nearest five dots
-//  -   user array pattern for idle waits
 //  -   flash at bounds of idle array
 
 //Buttons

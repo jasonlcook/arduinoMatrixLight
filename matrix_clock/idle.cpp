@@ -53,23 +53,11 @@ int32_t idleButtonUp()
     byte arraylength;
     arraylength = (sizeof(loopSpeeds) / sizeof(*loopSpeeds)) - 1;
 
-    Serial.print("arraylength: ");
-    Serial.println(arraylength);
-
-    Serial.print("loopSpeedIndex: ");
-    Serial.println(loopSpeedIndex);
-
     loopSpeedIndex++;
     if (loopSpeedIndex > arraylength)
         loopSpeedIndex = arraylength;
 
-    Serial.print("loopSpeedIndex: ");
-    Serial.println(loopSpeedIndex);
-
     loopSpeed = getLoopSpeed();
-
-    Serial.print("loop speed: ");
-    Serial.println(loopSpeed);
 
     return loopSpeed;
 }

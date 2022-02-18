@@ -15,7 +15,12 @@ void setTimerButtonDownShortPress()
 //  Pressed long
 void setTimerButtonDownLongPress()
 {
-    timerDuration -= 5;
+    byte leftOver = timerDuration % 5;
+
+    if (leftOver > 0)
+        timerDuration = timerDuration - leftOver;
+    else
+        timerDuration -= 5;
 }
 
 //Up button
@@ -28,6 +33,9 @@ void setTimerButtonUpShortPress()
 //  Pressed long
 void setTimerButtonUpLongPress()
 {
+    byte leftOver = timerDuration % 5;
+    timerDuration = timerDuration - leftOver;
+
     timerDuration += 5;
 }
 
