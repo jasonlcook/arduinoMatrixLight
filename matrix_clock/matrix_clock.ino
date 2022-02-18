@@ -11,9 +11,14 @@
 //  -   add tamper proofing
 //  -   add OLED for real output
 //  -   user RTC alarm for countdown to allow for poweroutage
+//      set alarm when setting countdown
+//      unset when alarm is sounding     
 //  -   set one minute mode to only use 60 LEDs
-//  -   replace delays with clock reads
 //  -   allow calculateDuration to be set by serial write
+//  -   flash set timer buttons when held
+//  -   only increment to the nearest five dots
+//  -   user array pattern for idle waits
+//  -   flash at bounds of idle array
 
 //Buttons
 const byte PIN_LED = 13;
@@ -48,7 +53,7 @@ byte alarmState = 0;
 
 uint32_t elapsedTime = 0;
 
-const byte cursorDelay = 100;
+const int32_t cursorDelay = 750;
 uint32_t cursorTime = 0;
 bool cursorState = false;
 

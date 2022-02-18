@@ -5,22 +5,29 @@ bool idleMatrix[64];
 const uint16_t loopSpeedMax = 1000;
 const uint8_t loopSpeedMin = 0;
 const uint32_t loopSpeedStep = 100;
-int32_t loopSpeed = 500;
+
+int loopSpeeds[] = {0, 10, 20, 40, 80, 160, 320, 640};
+int32_t loopSpeedIndex = 3;
+
+int32_t loopSpeed;
 
 void setupIdle()
 {
-    byte arraylength = sizeof(idleMatrix);
+    byte arraylength;
+    arraylength = sizeof(idleMatrix);
     for (int i = 0; i < arraylength; i++)
     {
         idleMatrix[i] = 1;
     }
 
     fillMatrix();
+
+    loopSpeed = getLoopSpeed();
 }
 
 int32_t getLoopSpeed()
 {
-    return loopSpeed;
+    return loopSpeeds[loopSpeedIndex];
 }
 
 //Down button
@@ -28,12 +35,12 @@ int32_t idleButtonDown()
 {
     Serial.println("Down button released");
 
-    loopSpeed -= loopSpeedStep;
-    if (loopSpeed < loopSpeedMin)
-        loopSpeed = loopSpeedMin;
+    loopSpeedIndex--;
 
-    Serial.print("loop speed: ");
-    Serial.println(loopSpeed);
+    if (loopSpeedIndex < 0)
+        loopSpeedIndex = 0;
+
+    loopSpeed = getLoopSpeed();
 
     return loopSpeed;
 }
@@ -43,9 +50,23 @@ int32_t idleButtonUp()
 {
     Serial.println("Up button released");
 
-    loopSpeed += loopSpeedStep;
-    if (loopSpeed > loopSpeedMax)
-        loopSpeed = loopSpeedMax;
+    byte arraylength;
+    arraylength = (sizeof(loopSpeeds) / sizeof(*loopSpeeds)) - 1;
+
+    Serial.print("arraylength: ");
+    Serial.println(arraylength);
+
+    Serial.print("loopSpeedIndex: ");
+    Serial.println(loopSpeedIndex);
+
+    loopSpeedIndex++;
+    if (loopSpeedIndex > arraylength)
+        loopSpeedIndex = arraylength;
+
+    Serial.print("loopSpeedIndex: ");
+    Serial.println(loopSpeedIndex);
+
+    loopSpeed = getLoopSpeed();
 
     Serial.print("loop speed: ");
     Serial.println(loopSpeed);
