@@ -62,7 +62,7 @@ int32_t idleButtonUp()
     return loopSpeed;
 }
 
-void startIdle()
+void loopIdle()
 {
     uint8_t column = random(0, 8);
     uint8_t row = random(0, 8);

@@ -22,7 +22,7 @@ void setupCountDown(int32_t duration)
     currentRow = 7;
 }
 
-bool startCountDown()
+bool loopCountDown()
 {
     RTClib myRTC;
     DateTime now = myRTC.now();

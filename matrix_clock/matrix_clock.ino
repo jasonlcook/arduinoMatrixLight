@@ -249,7 +249,7 @@ void loop()
             cursorTime = millis();
         }
 
-        alarming = startCountDown();
+        alarming = loopCountDown();
         if (alarming)
         {
             //if the alarm is active then move to Alarm sate
@@ -296,7 +296,7 @@ void loop()
         elapsedTime = millis() - idleTime;
         if (elapsedTime > idleDelay)
         {
-            startIdle();
+            loopIdle();
             idleTime = millis();
         }
         break;
