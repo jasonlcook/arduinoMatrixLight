@@ -7,13 +7,10 @@
 #include "ledMatrix.h"
 
 //todo:
-//  -   add alarm buzzer
-//  -   add tamper proofing
 //  -   add OLED for real output
 //  -   user RTC alarm for countdown to allow for poweroutage
 //      set alarm when setting countdown
-//      unset when alarm is sounding     
-//  -   set one minute mode to only use 60 LEDs
+//      unset when alarm is sounding
 //  -   allow calculateDuration to be set by serial write
 //  -   flash set timer buttons when held
 //  -   flash at bounds of idle array
@@ -58,12 +55,17 @@ bool cursorState = false;
 uint32_t idleDelay;
 uint32_t idleTime = 0;
 
+//Buzzer
+const byte PIN_BUZZER = 11;
+
 void setup()
 {
     Serial.begin(9600);
     Wire.begin();
 
     pinMode(PIN_LED, OUTPUT);
+
+    pinMode(PIN_BUZZER, OUTPUT);
 
     //Buttons
     pinMode(PIN_SET_MODE, INPUT_PULLUP);
@@ -266,11 +268,13 @@ void loop()
             if (alarmState)
             {
                 fillMatrix();
+                tone(PIN_BUZZER, 1000);
                 alarmState = false;
             }
             else
             {
                 clearMatrix();
+                noTone(PIN_BUZZER);
                 alarmState = true;
             }
 
