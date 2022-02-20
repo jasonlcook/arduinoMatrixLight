@@ -7,13 +7,10 @@
 #include "ledMatrix.h"
 
 //todo:
-//  -   add OLED for real output
-//  -   user RTC alarm for countdown to allow for poweroutage
-//      set alarm when setting countdown
-//      unset when alarm is sounding
 //  -   allow calculateDuration to be set by serial write
 //  -   flash set timer buttons when held
 //  -   flash at bounds of idle array
+//  -   replace RTC function with internal clock
 
 //Buttons
 const byte PIN_LED = 13;
@@ -149,6 +146,9 @@ void loop()
 
     if (modeChange)
     {
+        //make sure buzzer is turned off
+        noTone(PIN_BUZZER);
+
         currentMode++;
 
         if (currentMode > 2)
