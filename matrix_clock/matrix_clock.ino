@@ -11,6 +11,7 @@
 //  -   flash set timer buttons when held
 //  -   flash at bounds of idle array
 //  -   replace RTC function with internal clock
+//  -   when alarming all buttons should return state to idel
 
 //Buttons
 const byte PIN_LED = 13;

@@ -1,7 +1,7 @@
 #include "countDown.h"
 
-uint32_t secondsTick;
-uint32_t secondsSinceLastUpdate = 0;
+double tick;
+uint32_t millisecondSinceLastUpdate = 0;
 uint32_t indexTime;
 
 byte lightsInMatrix = 64;
@@ -11,11 +11,9 @@ int32_t currentRow = 7;
 void setupCountDown(int32_t duration)
 {
     //Tick seconds
-    RTClib myRTC;
-    DateTime now = myRTC.now();
-    indexTime = now.unixtime();
+    indexTime = millis();
 
-    secondsTick = calculateDuration(duration);
+    tick = calculateDuration(duration);
 
     fillMatrix();
     currentColumn = 0;
@@ -24,22 +22,13 @@ void setupCountDown(int32_t duration)
 
 bool loopCountDown()
 {
-    RTClib myRTC;
-    DateTime now = myRTC.now();
-    uint32_t currentTime = now.unixtime();
-
-    if (currentTime != indexTime)
+    uint32_t currentTime = millis();
+    if ((currentTime - indexTime) >= tick)
     {
-        secondsSinceLastUpdate++;
-        indexTime = currentTime;
-    }
-
-    if (secondsSinceLastUpdate >= secondsTick)
-    {        
         //make sure the previous dot is off before calculating the current one
         setMatrix(currentColumn, currentRow, false);
 
-        secondsSinceLastUpdate = 0;
+        millisecondSinceLastUpdate = 0;
 
         currentRow -= 1;
         if (currentRow < 0)
@@ -52,6 +41,8 @@ bool loopCountDown()
             }
         }
 
+        indexTime = currentTime;
+
         setMatrix(currentColumn, currentRow, false);
     }
 
@@ -63,16 +54,11 @@ void flashCursor(bool state)
     setMatrix(currentColumn, currentRow, state);
 }
 
-uint32_t calculateDuration(uint32_t input)
+double calculateDuration(uint32_t minutes)
 {
-    uint32_t secondDuration = input * 60;
-    return calculateTick(secondDuration);
-}
+    uint32_t seconds = minutes * 60;
+    double secondsTick = (double)seconds / (double)lightsInMatrix;
+    double millisecondTick = secondsTick * 1000;
 
-uint32_t calculateTick(int duration)
-{
-    double tick = (double)duration / (double)lightsInMatrix;
-    uint32_t flooredTick = round(tick);
-
-    return flooredTick;
+    return millisecondTick;
 }
