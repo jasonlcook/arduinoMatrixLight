@@ -10,8 +10,6 @@
 //  -   allow calculateDuration to be set by serial write
 //  -   flash set timer buttons when held
 //  -   flash at bounds of idle array
-//  -   replace RTC function with internal clock
-//  -   when alarming all buttons should return state to idel
 
 //Buttons
 const byte PIN_LED = 13;
@@ -147,9 +145,6 @@ void loop()
 
     if (modeChange)
     {
-        //make sure buzzer is turned off
-        noTone(PIN_BUZZER);
-
         currentMode++;
 
         if (currentMode > 2)
@@ -183,6 +178,13 @@ void loop()
             idleTime = millis();
 
             break;
+        }
+
+        if (alarming)
+        {
+            alarming = false;
+            currentMode = 0;
+            noTone(PIN_BUZZER);
         }
 
         modeChange = false;
@@ -281,6 +283,17 @@ void loop()
 
             alarmTime = millis();
         }
+
+        if (buttonDownShortPress || buttonDownLongPress || buttonUpShortPress || buttonUpLongPress)
+        {
+            modeChange = true;
+
+            buttonDownShortPress = false;
+            buttonDownLongPress = false;
+            buttonUpShortPress = false;
+            buttonUpLongPress = false;
+        }
+
         break;
     default:
         //idle
